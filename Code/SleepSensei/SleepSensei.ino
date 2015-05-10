@@ -2,7 +2,7 @@
 #include <EEPROM.h>
 #include <avr/sleep.h>
 
-// Sleep coach using ATtiny85
+// Sleep Sensei using ATtiny85
 
 //Programming ATtiny85 learned from: http://www.instructables.com/id/Program-an-ATtiny-with-Arduino/step2/Wire-the-circuit/
 
@@ -326,7 +326,7 @@ if (button_state == 1){button_counter += 1;}
 
 if (button_state == 0){button_counter = 0;}
 
-if (button_counter >= 3){ // If the user holds the button for 3 seconds, start the sleep coach
+if (button_counter >= 3){ // If the user holds the button for 3 seconds, go to mode to adjust final breath length
 button_pushed = 0;
 mode = "to_final_adjust";
 button_counter = 0;
@@ -390,7 +390,7 @@ if (button_state == 1){button_counter += 1;}
 
 if (button_state == 0){button_counter = 0;}
 
-if (button_counter >= 3){ // If the user holds the button for 3 seconds, start the sleep coach
+if (button_counter >= 3){ // If the user holds the button for 3 seconds, go to adjust tens digit of duration
 button_pushed = 0;
 mode = "to_tens_digit_adjust";
 button_counter = 0;
@@ -448,7 +448,7 @@ mode = "off";
 timeout = 0;
 }
 
-if (button_counter >= 3){ // If the user holds the button for 3 seconds, start the sleep coach
+if (button_counter >= 3){ // If the user holds the button for 3 seconds, go to adjust ones digit of duration
 button_pushed = 0;
 mode = "to_ones_digit_adjust";
 button_counter = 0;
@@ -497,7 +497,7 @@ mode = "off";
 timeout = 0;
 }
 
-if (button_counter >= 3){ // If the user holds the button for 3 seconds, start the sleep coach
+if (button_counter >= 3){ // If the user holds the button for 3 seconds, save settings and return to menu
 button_pushed = 0;
 mode = "back_to_menu";
 button_counter = 0;
