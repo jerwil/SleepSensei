@@ -67,7 +67,6 @@ double k = 0.00108*5;
 double k_initial = 0.00108*5;
 double k_final = 0.00065;
 double x = 3*3.14159/2/k; // This starts it at 0 brightness
-double breath_length = 6; // The user determined breath length
 
 // K-factors - these are used in the sine wave generation portion to change the period of the sine wave. (a k of .0054 corresponds to 6 second breath, a k of .001 corresponds to an 18 second breath) //
 
@@ -75,16 +74,14 @@ double k_delta = .0002; // The amount of change in k for each rotary encoder tic
 
 double k_values[8] = {.0054, .0054, .0054, .0054, .003, .0025, .0022, .0019}; // {k1_initial, k2_initial, k3_initial, k4_initial, k1_final, k2_final, k3_final, k4_final}
 
-int blink_times_array[4] = {250,500,750,1000}; // The delay in blinking for the four profiles during profile selection
+int profile_times_array[4] = {1, 2, 3, 4}; // Each profile is stored as a tens digit. Available options are 10, 20, 30, 40, 50, 60, 70, 80, and 90 minute long sessions
 
-int profile_times_array[8] = {0, 7, 1 , 4 , 2 , 1 , 2 , 8}; // Each profile is stored as two digits to ease adjustment and saving to EEPROM
-
-// EEPROM is mapped as follows : {k1_initial, k2_initial, k3_initial, k4_initial, k1_final, k2_final, k3_final, k4_final, Profile 1 Duration Tens Digit, Profile 1 Duration Ones Digit, Profile 2 Duration Tens Digit, Profile 2 Duration Ones Digit, Profile 3 Duration Tens Digit, Profile 3 Duration Ones Digit, Profile 4 Duration Tens Digit, Profile 4 Duration Ones Digit}
+// EEPROM is mapped as follows : {k1_initial, k2_initial, k3_initial, k4_initial, k1_final, k2_final, k3_final, k4_final, Profile 1 duration, Profile 2 duration, Profile 3 duration, Profile 4 duration}
 // EEPROM location 25 is used to see if program has written to EEPROM before. It will contain a value of 1 if this program has written to it, indicating that the rest of the EEPROM can be read.
 
 int val = 200; // Current value read from EEPROM
 
-double total_time = 420; // seconds for entire breathing coaching
+double total_time = 600; // seconds for entire breathing coaching
 double current_time = 0;
 
 int button_press_initiate[1];     // storage for button press function
@@ -124,7 +121,7 @@ for (int i = 0; i < 8; i++){
   k_values[i] = val;
   k_values[i] = k_values[i]/10000;
 }
-for (int i = 8; i <16; i++){
+for (int i = 8; i < 12; i++){
   val = EEPROM.read(i);
   profile_times_array[i-8] = val;
 }
@@ -225,7 +222,7 @@ button_pushed = 0;
 mode = "sleep_coach";
 button_counter = 0;
 
-total_time = (profile_times_array[profile*2-2]*10+profile_times_array[profile*2-1])*60;
+total_time = (profile_times_array[profile-1]*600);
 k_initial = k_values[profile-1];
 k_final = k_values[profile+3];
 
@@ -309,7 +306,6 @@ else if (clockwise == 1)
     {k -= k_delta;
     timeout = 0;}
   }
-//k = pow(breath_length,3)*-0.000004166667+pow(breath_length,2)*0.000175000000+breath_length*-0.002583333333+0.015500000000;
 brightness = 127*(1 + sin(k*x));  
 if (tick(delay_int,second_timer) == 1){
   x += brightincrease;
@@ -415,14 +411,15 @@ timeout = 0;
 }
 
 if (mode == "to_tens_digit_adjust"){
-tens_digit = profile_times_array[profile*2-2];
+tens_digit = profile_times_array[profile-1];
 mode = "tens_digit_adjust";
-for (int n=0; n < 2; n++) {pulse_led(LEDPin, 1);}
+blinks_until_break = tens_digit + 1;
+for (int n=0; n < 3; n++) {pulse_led(LEDPin, 1);}
 }
 
 if (mode == "tens_digit_adjust"){
   
-if (tick(1000,blink_timer) == 1){
+if (tick(1000,second_timer) == 1){
 timeout += 1;
 if (button_state == 1){button_counter += 1;}
 }
@@ -430,7 +427,7 @@ if (button_state == 1){button_counter += 1;}
 if (button_state == 0){button_counter = 0;}
   
 if (counterclockwise == 1)
-  {if(tens_digit > 0) 
+  {if(tens_digit > 1) 
     {tens_digit -= 1;
      timeout = 0;}
   }
@@ -440,8 +437,31 @@ else if (clockwise == 1)
      timeout = 0;}
   }
 
-if (button_pushed == 1 && tens_digit > 0){flash_led(LEDPin, tens_digit, 200);}
-else if (button_pushed == 1 && tens_digit == 0){pulse_led(LEDPin, 1);}
+//if (button_pushed == 1 && tens_digit > 0){flash_led(LEDPin, tens_digit, 200);}
+
+if (tick(200,blink_timer) == 1){
+ if (blink == 1){
+   blink = 0;
+ }
+ else if (blink == 0){
+   blink = 1;   
+     if (blinks_until_break == 1){blink = 0;}
+     if (blinks_until_break <= 0){
+     blink = 0;
+     blinks_until_break = tens_digit + 1;
+     }
+     else {blinks_until_break -= 1;}
+
+ }
+}
+
+blink_value = max_brightness;
+
+if (blink == 0){  
+blink_value = 0;
+}
+
+analogWrite(LEDPin, blink_value);
 
 if (timeout >= timeout_setting){
 mode = "off";
@@ -450,61 +470,13 @@ timeout = 0;
 
 if (button_counter >= 3){ // If the user holds the button for 3 seconds, go to adjust ones digit of duration
 button_pushed = 0;
-mode = "to_ones_digit_adjust";
-button_counter = 0;
-timeout = 0;
-
-profile_times_array[profile*2-2] = tens_digit;
-EEPROM.write(profile*2+6,tens_digit);
-EEPROM.write(25, 1);
-
-}
-
-}
-
-if (mode == "to_ones_digit_adjust"){
-ones_digit = profile_times_array[profile*2-1];
-mode = "ones_digit_adjust";
-for (int n=0; n < 5; n++) {pulse_led(LEDPin, 1);}
-button_counter = 0;
-}
-
-if (mode == "ones_digit_adjust"){
-  
-if (tick(1000,blink_timer) == 1){
-timeout += 1;
-if (button_state == 1){button_counter += 1;}
-}
-
-if (button_state == 0){button_counter = 0;}
- 
-if (counterclockwise == 1)
-  {if(ones_digit > 0) 
-    {ones_digit -= 1;
-     timeout = 0;}
-  }
-else if (clockwise == 1)
-  {if(ones_digit < 9) 
-    {ones_digit += 1;
-     timeout = 0;}
-  }
-
-if (button_pushed == 1 && ones_digit > 0){flash_led(LEDPin, ones_digit, 200);}
-else if (button_pushed == 1 && ones_digit == 0){pulse_led(LEDPin, 1);}
-
-if (timeout >= timeout_setting){
-mode = "off";
-timeout = 0;
-}
-
-if (button_counter >= 3){ // If the user holds the button for 3 seconds, save settings and return to menu
-button_pushed = 0;
 mode = "back_to_menu";
 button_counter = 0;
 timeout = 0;
+blinks_until_break = profile + 1;
 
-profile_times_array[profile*2-1] = ones_digit;
-EEPROM.write(profile*2+7,ones_digit);
+profile_times_array[profile-1] = tens_digit;
+EEPROM.write(profile+7,tens_digit);
 EEPROM.write(25, 1);
 
 }
