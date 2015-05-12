@@ -2,8 +2,8 @@
 
 A device to help users fall asleep using calming breathing training.
 
-![](https://raw.githubusercontent.com/jerwil/SleepCoach/master/Media/Sleep%20Coach%20Drawing.gif "Sleep Coach Drawing")
-![](https://raw.githubusercontent.com/jerwil/SleepCoach/master/Media/Sleep%20Coach%20Drawing%20Back.gif "Sleep Coach Back View")
+![](https://raw.githubusercontent.com/jerwil/SleepSensei/master/Documentation/Readme%20Media/Headband%20Red%20Logo.png "Sleep Sensei Logo")
+![](https://raw.githubusercontent.com/jerwil/SleepSensei/master/Documentation/Readme%20Media/IMG_4892.jpg "Sleep Sensei Photos")
 
 ## Features
 
@@ -56,7 +56,7 @@ So far I have had great success with the Sleep Sensei. I'm always looking for mo
 
 ### Schematics
 
-![](https://raw.githubusercontent.com/jerwil/SleepCoach/master/Media/Sleep_coach_tiny_schematic_battery_pcb.jpg "Sleep Coach schematic")
+![](https://raw.githubusercontent.com/jerwil/SleepSensei/master/Documentation/Readme%20Media/PCB%20Picture.jpg "Sleep Coach schematic")
 
 See the included Fritzing diagram (.fzz file) for details.
 
