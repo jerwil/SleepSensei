@@ -486,7 +486,7 @@ EEPROM.write(25, 1);
 if (mode == "back_to_menu"){
   
 x = 0;  
-flash_led(LEDPin, 10, 100);
+for (int n=0; n < 5; n++) {pulse_led(LEDPin, 1);}
 button_pushed = 0;
 button_counter = 0;
 mode = "time_choose";
@@ -574,9 +574,9 @@ void eeprom_reset(){
   for (int i = 0; i < 512; i++)
   EEPROM.write(i, 0);
   for (int i = 0; i < 8; i++){
-  EEPROM.write(i,k_values[i]);
+  EEPROM.write(i,k_values[i]*10000);
   }
-  for (int i = 8; i < 16; i++){
+  for (int i = 8; i < 12; i++){
   EEPROM.write(i,profile_times_array[i-8]);
   }
   EEPROM.write(25,1); 
