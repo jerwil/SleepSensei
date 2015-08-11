@@ -132,6 +132,7 @@ else {
 }
   
 mode = "time_choose";
+blinks_until_break = 0;
 }
   
     clockwise = 0;
@@ -169,7 +170,7 @@ x = 0;
 if (button_pushed == 1){
 profile += 1;
 button_pushed = 0;
-blinks_until_break = profile + 1;
+blinks_until_break = 0;
 }
 if (profile > 4){
 profile = 0;
@@ -513,6 +514,7 @@ profile = 0;
 }
 
 current_time = 0;
+blinks_until_break = 0;
   
 }
 
