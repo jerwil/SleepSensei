@@ -509,6 +509,7 @@ mode = "time_choose";
 button_pushed = 0;
 button_counter = 0;
 timeout = 0;
+profile = 0;
 }
 
 current_time = 0;
@@ -583,6 +584,7 @@ void eeprom_reset(){
 }
 
 void system_sleep() {
+  profile = 0;
   cbi(ADCSRA,ADEN); // Switch Analog to Digital converter OFF
   set_sleep_mode(SLEEP_MODE_PWR_DOWN); // Set sleep mode
   sleep_mode(); // System sleeps here
